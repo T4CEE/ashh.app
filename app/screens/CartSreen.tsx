@@ -39,7 +39,10 @@ export default function CartScreen({navigation}: {navigation: any}) {
             {cart.map((item) => (
               <View style={[styles.itemContainer, {backgroundColor: theme === 'dark' ? 'black' : 'white', borderWidth: 1, marginVertical:3, borderColor: theme === 'dark' ? '#353839' : 'white' }]} key={item.id}>
                 <Pressable style={{alignItems:'center'}} onPress={() => navigation.navigate('ItemDetailScreen', { item })}>
+                  <View style={{width: 250, padding:6, borderRadius: 10, backgroundColor:'white', alignItems: 'center'}}>
                 <Image style={styles.image} source={{ uri: item.image }} />
+
+                  </View>
                 <Text style={[styles.itemTitle, { color: theme === 'dark' ? 'white' : 'black' }]}>{item.title}</Text>
                 <Text style={[styles.itemPrice, { color: theme === 'dark' ? 'white' : 'black' }]}>${item.price}</Text>
                 </Pressable>
@@ -90,9 +93,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   image: {
-    width: 100,
+    width: 200,
     height: 100,
-    borderRadius: 2,
+   resizeMode: 'contain', 
+    borderRadius: 9,
     marginTop: 6,
   },
   itemTitle: {
