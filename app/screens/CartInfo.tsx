@@ -10,6 +10,7 @@ export default function CartInfo({navigation} : {navigation: any}) {
         data={Slides}
         renderItem={({ item }) => <CartData item={item} />}
       />
+      
     </View>
   )
 }
