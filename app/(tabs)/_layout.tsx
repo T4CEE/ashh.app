@@ -26,17 +26,17 @@ export default function TabLayout() {
           ),
         }}
       />
-        <Tabs.Screen
-          name="search"
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <EvilIcons name="search" size={27} color={focused
-                ? (colorScheme === 'dark' ? "white" : "black") // color when focused
-                : (colorScheme === 'dark' ? "gray" : "gray") // color when not focused
-              } />
-            ),
-          }}
-        />
+      <Tabs.Screen
+        name="search"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <EvilIcons name="search" size={27} color={focused
+              ? (colorScheme === 'dark' ? "white" : "black") // color when focused
+              : (colorScheme === 'dark' ? "gray" : "gray") // color when not focused
+            } />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="profile"
         options={{

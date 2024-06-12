@@ -19,19 +19,22 @@ const ItemDetailScreen = ({ route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Image style={styles.image} source={{ uri: item.image }} />
-        <Text style={styles.itemTitle}>{item.title}</Text>
-        <Text style={styles.itemDescription}>{item.description}</Text>
+    <SafeAreaView>
+      <ScrollView >
+        <View style={{ backgroundColor: 'white', paddingVertical: 9 }}>
+          <Image style={styles.image} source={{ uri: item.image }} />
+
+        </View>
+        <Text style={[styles.itemTitle, {color: theme === 'dark' ? 'white' : 'black' }]}>{item.title}</Text>
+        <Text style={[styles.itemDescription, {color: theme === 'dark' ? 'white' : 'black' }]}>{item.description}</Text>
         <Text style={styles.itemPrice}>${item.price}</Text>
         {cart.some((value) => value.id === item.id) ? (
-          <Pressable style={[styles.button, {borderColor:theme === 'dark' ? 'gray' : 'black'}]} onPress={() => removeItemFromCart(item)}>
+          <Pressable style={[styles.button, { borderColor: theme === 'dark' ? '#353839' : 'black' }]} onPress={() => removeItemFromCart(item)}>
             <Text style={styles.buttonTextRemove}>REMOVE FROM CART</Text>
           </Pressable>
         ) : (
-          <Pressable style={[styles.button, {borderColor:theme === 'dark' ? 'gray' : 'black'}]} onPress={() => addItemToCart(item)}>
-            <Text style={styles.buttonTextAdd}>ADD TO CART</Text>
+          <Pressable style={[styles.button, { borderColor: theme === 'dark' ? '#353839' : 'black', }]} onPress={() => addItemToCart(item)}>
+            <Text style={[styles.buttonTextAdd, {color: theme === 'dark' ? 'white' : 'black' }]}>ADD TO CART</Text>
           </Pressable>
         )}
       </ScrollView>
@@ -40,14 +43,6 @@ const ItemDetailScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 10,
-    paddingBottom: 0, 
-    flexGrow: 1,
-  },
   image: {
     width: '100%',
     height: 400,
@@ -82,11 +77,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   buttonTextAdd: {
-    color: '#3944BC',
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   buttonTextRemove: {
-    color: 'red',
+    fontWeight: 'bold',
+    color: '#E3242B',
     textAlign: 'center',
   },
 });

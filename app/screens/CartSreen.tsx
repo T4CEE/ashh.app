@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { incrementQuantity, decrementQuantity, removeFromCart } from './CartReducer';
 import { RootState, CartItem } from './Types';
 
-export default function CartScreen() {
+export default function CartScreen({navigation}: {navigation: any}) {
   const cart = useSelector((state: RootState) => state.cart.cart);
   const dispatch = useDispatch();
   const [itemInCart, setItemInCart] = useState(false);
@@ -37,10 +37,12 @@ export default function CartScreen() {
           <View>
             <Text style={[styles.headerText, { color: theme === 'dark' ? 'white' : 'black' }]}>Items In Cart</Text>
             {cart.map((item) => (
-              <View style={styles.itemContainer} key={item.id}>
+              <View style={[styles.itemContainer, {backgroundColor: theme === 'dark' ? 'black' : 'white', borderWidth: 1, marginVertical:3, borderColor: theme === 'dark' ? '#353839' : 'white' }]} key={item.id}>
+                <Pressable style={{alignItems:'center'}} onPress={() => navigation.navigate('ItemDetailScreen', { item })}>
                 <Image style={styles.image} source={{ uri: item.image }} />
                 <Text style={[styles.itemTitle, { color: theme === 'dark' ? 'white' : 'black' }]}>{item.title}</Text>
                 <Text style={[styles.itemPrice, { color: theme === 'dark' ? 'white' : 'black' }]}>${item.price}</Text>
+                </Pressable>
                 <View style={styles.quantityContainer}>
                   <Pressable onPress={() => decreaseQuantity(item)}>
                     <Text style={styles.quantityButton}>-</Text>
@@ -48,7 +50,7 @@ export default function CartScreen() {
                   <Text style={styles.quantityText}>{item.quantity}</Text>
                   <Pressable onPress={() => increaseQuantity(item)}>
                     <Text style={styles.quantityButton}>+</Text>
-                  </Pressable>
+                  </Pressable>  
                 </View>
               </View>
             ))}
@@ -80,19 +82,28 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   itemContainer: {
-    padding: 10,
+    flex:1,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   image: {
     width: 100,
     height: 100,
-    borderRadius: 8,
+    borderRadius: 2,
     marginTop: 6,
   },
   itemTitle: {
+    marginTop:15,
     fontSize: 18,
+    textAlign: 'center',
+    marginVertical:3
   },
   itemPrice: {
-    fontSize: 16,
+    fontSize: 30,
+    marginVertical: 6
   },
   quantityContainer: {
     flexDirection: 'row',

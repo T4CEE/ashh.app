@@ -1,90 +1,151 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Text, View, Button, SafeAreaView, Alert } from 'react-native';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Image, Text, View, Button, SafeAreaView, Alert, TouchableOpacity, useColorScheme } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/app/util/supabase';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { decode } from 'base64-arraybuffer';
+import { EvilIcons } from '@expo/vector-icons';
 
 export default function TabTwoScreen() {
-  const [imageUrl, setImageUrl] = useState(null);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const [avatarUploaded, setAvatarUploaded] = useState<boolean>(false);
 
-  const handleFileInputChange = async () => {
-    try {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (permissionResult.status !== 'granted') {
-        Alert.alert('Permission required', 'Permission to access media library is required!');
-        return;
+  const theme =useColorScheme()
+
+  useEffect(() => {
+    const requestPermission = async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'We need permission to access your camera roll.');
       }
+    };
+    requestPermission();
 
-      const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (pickerResult.cancelled) {
-        return;
+    const fetchUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setEmail(user.email);
+        checkAvatarUploaded(user.email);
+      } else {
+        Alert.alert('Error', 'No user is logged in.');
       }
+    };
+    fetchUserEmail();
+  }, []);
 
-      const { uri } = pickerResult;
+  const checkAvatarUploaded = async (email: string) => {
+    const avatarFlag = await AsyncStorage.getItem(`avatarUploaded_${email}`);
+    if (avatarFlag === 'true') {
+      setAvatarUploaded(true);
+      const storedImageUrl = await AsyncStorage.getItem(`uploadedImageUrl_${email}`);
+      if (storedImageUrl) {
+        setImageUrl(storedImageUrl);
+      }
+    }
+  };
+
+  const pickImage = async () => {
+    if (!email) {
+      return;
+    }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       setShowOverlay(true);
+      const { base64 } = result.assets[0];
 
-      // Fetch the file and convert it to a blob
-      const response = await fetch(uri);
-      const blob = await response.blob();
+      if (base64) {
+        try {
+          const fileName = `public/avatar_${Date.now()}.png`;
+          const { error: uploadError } = await supabase
+            .storage
+            .from('avatars')
+            .upload(fileName, decode(base64), {
+              contentType: 'image/png',
+            });
 
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(`avatar_${Date.now()}.jpeg`, blob);
+          if (uploadError) {
+            throw uploadError;
+          }
 
-      setShowOverlay(false);
+          const { data } = supabase
+            .storage
+            .from('avatars')
+            .getPublicUrl(fileName);
 
-      if (error) {
-        console.error('Error uploading file:', error);
-        Alert.alert('Upload error', 'There was an error uploading the file.');
-        return;
+          const imageUrl = data.publicUrl;
+          setImageUrl(imageUrl);
+          await AsyncStorage.setItem(`uploadedImageUrl_${email}`, imageUrl);
+          await AsyncStorage.setItem(`avatarUploaded_${email}`, 'true');
+          setAvatarUploaded(true);
+          setShowOverlay(false);
+        } catch (error) {
+          if (typeof error === 'string') {
+            Alert.alert('Error uploading image', error);
+          } else {
+            Alert.alert('Error uploading image', 'An error occurred while uploading the image.');
+          }
+          setShowOverlay(false);
+        }
       }
-
-      setImageUrl(uri);
-    } catch (error) {
-      console.error('Error handling file input change:', error);
-      Alert.alert('Error', 'Something went wrong.');
-      setShowOverlay(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Pick an image from camera roll" onPress={handleFileInputChange} />
-      <View style={styles.imageContainer}>
-        {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
+      {avatarUploaded ? (
+        <>
+          <View style={styles.imageContainer}>
+            {imageUrl && 
+            <Image source={{ uri: imageUrl }} style={styles.image} />}
+          </View>
+          <TouchableOpacity style={{backgroundColor:'#E0E0E0' ,padding: 6, position: 'absolute', top:130, right: 140, width:30, height:30, borderRadius:20}} onPress={pickImage}>
+          <EvilIcons name="camera" size={20} color='black' />
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TouchableOpacity style={{marginTop: 50}} onPress={pickImage}>
+          <EvilIcons name="plus" size={60} style={{color: theme === 'dark' ? 'white': 'black'}}/>
+        </TouchableOpacity>
+      )}
+      <Text style={{fontSize: 20, fontWeight:'600', marginVertical: 10, color: theme === 'dark' ? 'white': 'black'}}> {email}</Text>
+      {showOverlay &&<EvilIcons name="spinner" size={40} color='black'/>}
+      <TouchableOpacity style={{backgroundColor: '#353839', padding: 9, borderRadius: 5}} onPress={() => supabase.auth.signOut()}>
+        <Text style={{color: 'white', fontWeight: '600'}}>Sign Out</Text>
+      </TouchableOpacity>
+      <View>
+        <Text style={{marginTop:90, fontWeight:'600', fontSize:25, color: theme === 'dark' ? 'white': 'black'}}>Wallet balance: $0.00</Text>
       </View>
-      {showOverlay && <Text>Loading...</Text>}
     </SafeAreaView>
+    
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative'
   },
   imageContainer: {
     width: 100,
     height: 100,
-    borderRadius: 100,
+    borderRadius: 50,
     marginTop: 20,
+    overflow: 'hidden',
+    borderColor:'#353839',
+    borderWidth: 2
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 100,
+    width: '100%',
+    height: '100%',
   },
 });

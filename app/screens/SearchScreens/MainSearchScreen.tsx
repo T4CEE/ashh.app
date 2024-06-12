@@ -23,7 +23,7 @@ interface Item {
   image: string;
 }
 
-const SummerScreen = ({ navigation }: { navigation: any }) => {
+const MainSearchScreen = ({ navigation }: { navigation: any }) => {
   const theme = useColorScheme();
 
   const [data, setData] = useState<Item[]>([]);
@@ -217,4 +217,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SummerScreen;
+export default MainSearchScreen;
