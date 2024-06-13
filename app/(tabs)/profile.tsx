@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Image, Text, View, Button, SafeAreaView, Alert, TouchableOpacity, useColorScheme } from 'react-native';
+import { StyleSheet, Image, Text, View, Button, SafeAreaView, Alert, TouchableOpacity, useColorScheme, Platform, StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/app/util/supabase';
@@ -100,14 +100,15 @@ export default function TabTwoScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.AndroidSafeArea}>
+      <View style={styles.container}>
       {avatarUploaded ? (
         <>
           <View style={styles.imageContainer}>
             {imageUrl && 
             <Image source={{ uri: imageUrl }} style={styles.image} />}
           </View>
-          <TouchableOpacity style={{backgroundColor:'#E0E0E0' ,padding: 6, position: 'absolute', top:130, right: 140, width:30, height:30, borderRadius:20}} onPress={pickImage}>
+          <TouchableOpacity style={{backgroundColor:'#E0E0E0' ,padding: 6, position: 'absolute', top:93, right: 135, width:30, height:30, borderRadius:20}} onPress={pickImage}>
           <EvilIcons name="camera" size={20} color='black' />
           </TouchableOpacity>
         </>
@@ -124,6 +125,8 @@ export default function TabTwoScreen() {
       <View>
         <Text style={{marginTop:90, fontWeight:'600', fontSize:25, color: theme === 'dark' ? 'white': 'black'}}>Wallet balance: $0.00</Text>
       </View>
+
+      </View>
     </SafeAreaView>
     
   );
@@ -134,6 +137,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     position: 'relative'
+  },
+  AndroidSafeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   imageContainer: {
     width: 100,

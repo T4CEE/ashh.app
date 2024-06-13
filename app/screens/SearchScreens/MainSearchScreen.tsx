@@ -10,7 +10,9 @@ import {
   TouchableOpacity,
   Modal,
   useColorScheme,
-  Pressable
+  Pressable,
+  Platform,
+  StatusBar
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -78,7 +80,9 @@ const MainSearchScreen = ({ navigation }: { navigation: any }) => {
     .sort((a, b) => (sortOrder === 'asc' ? a.price - b.price : b.price - a.price));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.AndroidSafeArea}>
+      <View style={styles.container}>
+
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Pressable onPress={() => setIsPickerVisible(true)} style={styles.searchButton}>
           <Ionicons name="search" size={24} color={theme === 'dark' ? '#C5C6D0' : 'black'} />
@@ -144,6 +148,7 @@ const MainSearchScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
       </Modal>
+      </View>
     </SafeAreaView>
   );
 };
@@ -151,6 +156,10 @@ const MainSearchScreen = ({ navigation }: { navigation: any }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  AndroidSafeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   itemContainer: {
     borderRadius: 5,

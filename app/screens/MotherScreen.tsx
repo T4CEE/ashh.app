@@ -18,7 +18,6 @@ export default function MotherScreen({ navigation }: { navigation: any }) {
 
     <SafeAreaProvider >
       <Nav navigation={navigation} />
-      {/* / */}
       <ScrollView>
         <HomeScreen navigation={navigation} />
         <Slider />

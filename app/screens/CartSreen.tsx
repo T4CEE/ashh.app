@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Pressable, SafeAreaView, ScrollView, useColorScheme, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, SafeAreaView, ScrollView, useColorScheme, StyleSheet, StatusBar, Platform } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { incrementQuantity, decrementQuantity, removeFromCart } from './CartReducer';
 import { RootState, CartItem } from './Types';
@@ -27,7 +27,8 @@ export default function CartScreen({navigation}: {navigation: any}) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.AndroidSafeArea}>
+      <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {!itemInCart ? (
           <Text style={[styles.emptyCartText, { color: theme === 'dark' ? 'white' : 'black' }]}>
@@ -60,6 +61,8 @@ export default function CartScreen({navigation}: {navigation: any}) {
           </View>
         )}
       </ScrollView>
+
+      </View>
     </SafeAreaView>
   );
 }
@@ -67,6 +70,10 @@ export default function CartScreen({navigation}: {navigation: any}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  AndroidSafeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   },
   scrollContainer: {
     padding: 10,
